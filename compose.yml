@@ -40,9 +40,9 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    command: uvicorn app.admin_main:app --host 0.0.0.0 --port 81 --log-config /app/app/logger_config.yaml --reload
+    command: uvicorn app.admin_main:app --host 0.0.0.0 --port 80 --log-config /app/app/logger_config.yaml --reload
     ports:
-      - "18081:81"
+      - "18081:80"
     volumes:
       - ./app:/app/app
       - ./.env:/app/.env
