@@ -1,0 +1,56 @@
+services:
+  # postgresqlのコンテナ定義
+  db:
+    image: postgres:14.6
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_DB: postgres
+    # DB起動完了までappコンテナの起動を待つための設定
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready --username=postgres"]
+      interval: 3s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+    # 既存プロジェクトとのポート競合を避けるために54321に変更
+    ports:
+      - 54321:5432
+    # DBの削除を容易にするためにプロジェクト内のディレクトリにデータを保存
+    volumes:
+      - ./docker/db_data:/var/lib/postgresql/data
+    networks:
+      - fastapi_network
+  # アプリ用のコンテナ定義
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: uvicorn app.main:app --host 0.0.0.0 --port 80 --log-config /app/app/logger_config.yaml --reload
+    ports:
+      - "18080:80"
+    volumes:
+      - ./app:/app/app
+      - ./.env:/app/.env
+    networks:
+      - fastapi_network
+  # 管理画面用のコンテナ定義
+  admin_app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: uvicorn app.admin_main:app --host 0.0.0.0 --port 81 --log-config /app/app/logger_config.yaml --reload
+    ports:
+      - "18081:81"
+    volumes:
+      - ./app:/app/app
+      - ./.env:/app/.env
+    networks:
+      - fastapi_network
+
+
+networks:
+  fastapi_network:
+    name: fastapi_network
+    driver: bridge

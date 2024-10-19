@@ -1,0 +1,37 @@
+version: 1
+# 既存のログがあった場合に無効化しない
+disable_existing_loggers: false
+
+formatters:
+  # format定義
+  normal:
+    format: "[%(levelname)s][tid:%(thread)d] %(asctime)s %(name)s(line:%(lineno)s) func:%(funcName)s - %(message)s"
+
+handlers:
+  # コンソール出力ログのlevelとformat定義を行う
+  console:
+    class: logging.StreamHandler
+    level: INFO
+    formatter: normal
+    stream: ext://sys.stdout
+
+# logger定義。logger名毎にlog-levelとhandlerの定義を行う
+loggers:
+  app:
+    level: INFO
+    handlers: [console]
+    propagate: false
+
+  uvicorn:
+    level: INFO
+    handlers: [console]
+    propagate: false
+
+  sqlalchemy.engine:
+    level: ERROR
+    propagate: false
+
+# root-loggerの定義
+root:
+  level: ERROR
+  handlers: [console]
