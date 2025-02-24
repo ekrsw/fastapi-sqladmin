@@ -4,6 +4,39 @@
 
 詳細は以下の記事を参照してください。
 
+## 初期セットアップ
+
+### 必要な環境
+
+- Docker
+- Docker Compose
+- make
+
+### セットアップ手順
+
+1. 環境変数の設定
+
+```bash
+# .envファイルを作成し、必要な環境変数を設定
+cp .env.example .env
+# .envファイルを編集して必要な値を設定
+```
+
+2. アプリケーションの起動とテーブル作成
+
+```bash
+# Dockerコンテナをビルドして起動
+docker-compose up -d
+
+# テーブルを作成（コンテナ内で実行）
+docker-compose exec app python tools.py create_all_tables
+```
+
+3. 動作確認
+
+- 管理画面: http://localhost:18081/admin
+- API: http://localhost:18080
+
 ## アプリの起動方法
 
 ### Docker を使用した起動（本番環境に近い構成）
@@ -38,7 +71,7 @@ make reset_db
 - 次回起動時に新しいデータベースが作成される
 
 ```bash
-# データベーステーブルの作成
+# データベーステーブルの作成（非推奨: 代わりにdocker compose execを使用）
 make create_all_tables
 ```
 
@@ -52,6 +85,12 @@ make create_all_tables
 
 - SQLAlchemy のモデル定義に基づいてテーブルを作成
 - 既存のテーブルがある場合は影響なし
+
+**推奨される実行方法**:
+
+```bash
+docker compose exec app python tools.py create_all_tables
+```
 
 #### ローカル開発サーバー
 
@@ -77,14 +116,14 @@ make start_uvicorn_local
 1. データベースの準備
 
 ```bash
-# DBコンテナのみを起動
-docker compose up -d db
+# 全てのコンテナを起動
+docker compose up -d
 
 # 必要に応じてDBをリセット
 make reset_db
 
-# テーブルを作成
-make create_all_tables
+# テーブルを作成（コンテナ内で実行）
+docker compose exec app python tools.py create_all_tables
 ```
 
 2. 開発サーバーの起動
